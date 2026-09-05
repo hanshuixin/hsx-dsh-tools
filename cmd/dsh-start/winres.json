@@ -1,0 +1,45 @@
+{
+  "RT_GROUP_ICON": {
+    "APP": {
+      "0000": [
+        "../../../assets/hsx-dsh-tools-logo-256.png"
+      ]
+    }
+  },
+  "RT_MANIFEST": {
+    "#1": {
+      "0409": {
+        "identity": {
+          "name": "启动DeepSeekHarness",
+          "version": "0.0.0.0"
+        },
+        "execution-level": "as invoker",
+        "ui-access": false,
+        "minimum-os": "win7",
+        "dpi-awareness": "system"
+      }
+    }
+  },
+  "RT_VERSION": {
+    "#1": {
+      "0000": {
+        "fixed": {
+          "file_version": "0.0.0.0",
+          "product_version": "0.0.0.0"
+        },
+        "info": {
+          "0804": {
+            "CompanyName": "寒水馨",
+            "FileDescription": "DeepSeek Harness 启动器：启动 @deepseek-ai/dsh 的 Web 界面",
+            "FileVersion": "0.0.0.0",
+            "InternalName": "启动DeepSeekHarness",
+            "LegalCopyright": "Copyright (c) 2026 寒水馨（hanshuixin.org）· MIT License",
+            "OriginalFilename": "启动DeepSeekHarness.exe",
+            "ProductName": "DeepSeek Harness 工具集",
+            "ProductVersion": "0.0.0.0"
+          }
+        }
+      }
+    }
+  }
+}

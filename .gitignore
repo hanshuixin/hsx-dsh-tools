@@ -2,7 +2,9 @@
 dist/
 *.exe
 
-# go-winres 生成文件（rsrc_*.syso 资源文件需保留并提交）
+# go-winres 生成的资源文件（版本/语言模板见各 cmd/*/winres.json，
+# .syso 与临时 winres/ 目录由 build.ps1 构建时自动生成，不提交）
+*.syso
 winres/
 
 # IDE
