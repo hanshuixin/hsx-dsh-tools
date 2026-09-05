@@ -19,6 +19,18 @@ func main() {
 	dshutil.SetupConsole()
 	dshutil.SetTitle(title)
 
+	// Node 装在每机器目录（C:\Program Files\nodejs）时，npm update -g 同样
+	// 需要写 Program Files，必须以管理员权限运行，否则会因权限不足失败。
+	if !dshutil.Elevated() {
+		dshutil.Info("升级全局 %s 需要管理员权限，正在请求授权...", dshutil.DshPackage)
+		if err := dshutil.RelaunchElevated(); err != nil {
+			dshutil.Fail("%s", err)
+			dshutil.PressAnyKey()
+			os.Exit(1)
+		}
+		return // 提权后的新实例已在独立窗口运行，当前实例退出。
+	}
+
 	dshutil.Banner(title)
 	dshutil.Info("将升级到 npm 仓库最新版")
 	dshutil.Info("")

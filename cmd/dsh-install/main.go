@@ -21,6 +21,20 @@ func main() {
 	}
 	dshutil.SetupConsole()
 	dshutil.SetTitle(title)
+
+	// Node.js 官方 MSI 是每机器安装，写入 C:\Program Files，必须以管理员权限
+	// 运行。未提权时先请求一次 UAC 授权，以管理员身份重启整个流程，否则
+	// msiexec /qn 会在无 UAC 的情况下直接失败（退出码 1603）。
+	if !dshutil.Elevated() {
+		dshutil.Info("本程序需要管理员权限来安装 Node.js，正在请求授权...")
+		if err := dshutil.RelaunchElevated(); err != nil {
+			dshutil.Fail("%s", err)
+			dshutil.PressAnyKey()
+			os.Exit(1)
+		}
+		return // 提权后的新实例已在独立窗口运行，当前实例退出。
+	}
+
 	if err := run(); err != nil {
 		dshutil.Fail("%s", err)
 		dshutil.PressAnyKey()
@@ -55,7 +69,7 @@ func printHeader() {
 	dshutil.Info("")
 	dshutil.Info("  [注意事项]")
 	dshutil.Info("  安装全程需要联网，请确保网络畅通")
-	dshutil.Info("  安装 Node.js 时可能弹出 UAC 提示，请点击\"是\"")
+	dshutil.Info("  首次运行会请求管理员权限（UAC 提示），请点击\"是\"")
 	dshutil.Rule()
 	dshutil.Info("")
 }

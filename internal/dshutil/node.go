@@ -46,9 +46,9 @@ func nodeMSIURL(version string) string {
 	return fmt.Sprintf("%s/v%s/node-v%s-x64.msi", NodeMirrorBase, version, version)
 }
 
-// InstallNode 下载并静默安装 Node.js 的 MSI 安装包，随后轮询等待 node 可用。
-// msiexec 可能因 UAC 提权提前返回，因此以"node 可用"作为安装完成的真正
-// 信号。
+// InstallNode 下载并静默安装 Node.js 的每机器 MSI 安装包，随后轮询等待
+// node 可用。调用方应确保进程已以管理员权限运行。msiexec 可能在安装尚未
+// 真正完成时就返回，因此以"node 可用"作为安装完成的真正信号。
 func InstallNode() error {
 	msiPath := filepath.Join(os.TempDir(), fmt.Sprintf("node-v%s-x64.msi", NodeVersion))
 	if err := downloadFile(nodeMSIURL(NodeVersion), msiPath, Stdout); err != nil {
@@ -59,26 +59,28 @@ func InstallNode() error {
 		return err
 	}
 
+	// /l*v 保留 msiexec 详细安装日志，安装再次失败时可据此定位根因。
+	msiLog := filepath.Join(os.TempDir(), fmt.Sprintf("node-v%s-install.log", NodeVersion))
 	Info("正在静默安装 Node.js %s，一般需要 1-2 分钟...", NodeVersion)
-	Info("如弹出 UAC 提示，请点击\"是\"")
-	code := RunCmd("msiexec", "/i", msiPath, "/qn", "/norestart")
+	code := RunCmd("msiexec", "/i", msiPath, "/qn", "/norestart", "/l*v", msiLog)
 
 	deadline := time.Now().Add(nodeInstallTimeout)
-	// msiexec 非零退出时给一个短窗口（可能 UAC 提权子进程仍在写盘），
-	// 之后仍不可用则快速失败，而不是空等满 5 分钟。
+	// msiexec 非零退出时给一个短窗口，之后仍不可用则快速失败，而不是空等满
+	// 5 分钟。
 	msiFailAt := time.Now().Add(msiFailGrace)
 	for {
-		// 每次轮询都从注册表重建 PATH：msiexec 可能经 UAC 提权提前返回，
-		// 注册表在安装完成那一刻才更新，只刷新一次会读到旧值。
+		// 注册表在安装完成那一刻才更新，因此每次轮询都从注册表重建 PATH，
+		// 只刷新一次会读到旧值。
 		RefreshPathEnv(NodeExtraDirs())
 		if nodeReady() {
+			_ = os.Remove(msiLog)
 			return nil
 		}
 		if code != 0 && time.Now().After(msiFailAt) {
-			return fmt.Errorf("Node.js 安装失败（msiexec 退出码 %d）", code)
+			return fmt.Errorf("Node.js 安装失败（msiexec 退出码 %d），详细日志：%s", code, msiLog)
 		}
 		if time.Now().After(deadline) {
-			return fmt.Errorf("等待 Node.js 安装完成超时，请手动检查安装")
+			return fmt.Errorf("等待 Node.js 安装完成超时，请手动检查安装，日志：%s", msiLog)
 		}
 		time.Sleep(pollInterval)
 	}
