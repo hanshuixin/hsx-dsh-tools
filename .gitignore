@@ -1,0 +1,18 @@
+# 构建产物
+dist/
+*.exe
+
+# go-winres 生成文件（rsrc_*.syso 资源文件需保留并提交）
+winres/
+
+# IDE
+.idea/
+*.iml
+
+# 系统文件
+.DS_Store
+Thumbs.db
+*.stackdump
+
+# 其他
+.claude/

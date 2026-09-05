@@ -1,0 +1,31 @@
+# 规范化文本行尾：文本文件按内容自动检测，仓库内统一存储为 LF，
+# Windows 工作区检出时按需转换。
+* text=auto
+
+# 文本类型统一用 LF 存储。
+*.go text eol=lf
+*.md text eol=lf
+*.mod text eol=lf
+*.sum text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.json text eol=lf
+.gitignore text eol=lf
+.gitattributes text eol=lf
+
+# Windows 批处理 / PowerShell 脚本保留 CRLF，避免 cmd.exe / 旧版
+# PowerShell 解析出错。
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+# 二进制资源不参与文本规范化。
+*.exe binary
+*.dll binary
+*.ico binary
+*.png binary
+*.syso binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.zip binary
